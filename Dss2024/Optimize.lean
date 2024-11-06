@@ -1,8 +1,9 @@
 import Dss2024.Eval
+import Dss2024.Delab
 
 namespace Imp
 
-def optimize : Expr → Expr
+def Expr.optimize : Expr → Expr
  | .const i => .const i
  | .var x => .var x
  | .lt x y =>
@@ -14,7 +15,7 @@ def optimize : Expr → Expr
   | .const i, .const j => .const (i + j)
   | _, _ => .plus x y
 
-theorem optimize_correct (σ : Env) : eval σ (optimize e) = eval σ e := by
+theorem Expr.optimize_correct (σ : Env) : eval σ (optimize e) = eval σ e := by
   induction e
   case const =>
     simp [optimize]

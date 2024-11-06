@@ -19,21 +19,21 @@ partial def delabExprInner : DelabM (TSyntax `expr) := do
           pure <| ⟨Syntax.mkNumLit (toString n') |>.raw⟩
         else if let .lit (.natVal n') := n then
           pure <| ⟨Syntax.mkNumLit (toString n') |>.raw⟩
-        else throwError "foo"
+        else failure
       | Int.ofNat n =>
         if let some n' := n.nat? then
           pure <| ⟨Syntax.mkNumLit (toString n') |>.raw⟩
         else if let .lit (.natVal n') := n then
           pure <| ⟨Syntax.mkNumLit (toString n') |>.raw⟩
-        else throwError "foo"
+        else failure
       | BitVec.ofNat _ _ => (⟨·.raw⟩) <$> (withAppArg <| withAppArg <| delab)
-      | _ => throwError "foo"
+      | _ => failure
     | Expr.var i => do
       match i with
       | .lit (.strVal s) =>
         let x := mkIdent <| .mkSimple s
         `(expr| $x:ident )
-      | _ => throwError "foo"
+      | _ => failure
     | Expr.plus _ _ =>
       let s1 ← withAppFn <| withAppArg delabExprInner
       let s2 ← withAppArg delabExprInner
@@ -42,7 +42,7 @@ partial def delabExprInner : DelabM (TSyntax `expr) := do
       let s1 ← withAppFn <| withAppArg delabExprInner
       let s2 ← withAppArg delabExprInner
       `(expr| $s1 < $s2)
-    | _ => throwError "foo"
+    | _ => failure
   annAsTerm stx
 
 @[delab app.Imp.Expr.const, delab app.Imp.Expr.var, delab app.Imp.Expr.plus, delab app.Imp.Expr.lt]
@@ -72,7 +72,7 @@ partial def delabStmtInner : DelabM (TSyntax `stmt) := do
         let x := mkIdent <| .mkSimple s
         let e ← withAppArg delabExprInner
         `(stmt| $x:ident := $e; )
-      | _ => throwError "foo"
+      | _ => failure
     | Stmt.while _ _ =>
       let c ← withAppFn <| withAppArg delabExprInner
       let body ← withAppArg delabStmtInner
@@ -82,7 +82,7 @@ partial def delabStmtInner : DelabM (TSyntax `stmt) := do
       let t ← withAppFn <| withAppArg delabStmtInner
       let f ← withAppArg delabStmtInner
       `(stmt| if ($c) { $t } else { $f })
-    | _ => throwError "foo"
+    | _ => failure
   annAsTerm stx
 
 @[delab app.Imp.Stmt.skip, delab app.Imp.Stmt.seq, delab app.Imp.Stmt.while, delab app.Imp.Stmt.assign, delab app.Imp.Stmt.if]

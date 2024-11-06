@@ -49,11 +49,28 @@ macro_rules
   | `(imp{if($e) {$s₁} else {$s₂}}) => `(Stmt.ifThenElse (expr {$e}) (imp {$s₁}) (imp {$s₂}))
   | `(imp{while($e){$s}}) => `(Stmt.while (expr {$e}) (imp {$s}))
 
+/-- info: ((Expr.var "x").plus (Expr.var "y")).lt (Expr.var "z") : Expr -/
+#guard_msgs in
 #check expr { x + y < z }
+
+/-- info: ((Expr.var "x").plus (Expr.var "y")).plus (Expr.var "z") : Expr -/
+#guard_msgs in
 #check expr { x + y + z }
+
+/-- info: (Stmt.assign "x" (Expr.const 4)).seq
+  (Stmt.while ((Expr.var "x").lt (Expr.const 6)) (Stmt.assign "x" ((Expr.var "x").plus (Expr.const 1)))) : Stmt-/
+#guard_msgs in
 #check imp {
   x := 4;
   while (x < 6) {
     x := x + 1;
+  }
+}
+
+#check imp {
+  if (x < y) {
+    min := x;
+  } else {
+    min := y;
   }
 }
